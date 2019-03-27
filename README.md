@@ -4,7 +4,7 @@ Project 1 Udacity's Deep RL nanodegree
 ##### &nbsp;
 
 ## Goal
-In this project, we train a reinforcement learning (RL) agent that navigates an environment similar to [Unity's Banana Collector environment](https://github.com/Unity-Technologies/ml-agents/blob/master/docs/Learning-Environment-Examples.md#banana-collector). The environment has yellow and blue bananas scattered around in rectangle shaped environment. Occasionally some bananas drop from the air. The environment is episodic and runs for 300 timesteps (30 seconds).
+In this project, we train a reinforcement learning (RL) agent that navigates an environment similar to [Unity's Banana Collector environment](https://github.com/Unity-Technologies/ml-agents/blob/master/docs/Learning-Environment-Examples.md#banana-collector). The environment has yellow and blue bananas scattered around a in rectangle-shaped environment. Occasionally some bananas drop from the air. The environment is episodic and runs for 300 timesteps (30 seconds).
 
 A reward of +1 is provided for collecting a yellow banana, and a reward of -1 is provided for collecting a blue banana. The goal is to collect as many yellow bananas as possible while avoiding blue bananas. The environment is solved when the agent achieves an average score of +13 over 100 consecutive episodes.
 
@@ -16,7 +16,8 @@ A reward of +1 is provided for collecting a yellow banana, and a reward of -1 is
 2. Training a vanilla DQN.
 3. Visualizing Results and Going Further: The problem of Instability/Loops
 4. Learnable Discount Factor
-5. Select best performing agent and capture video of it navigating the environment.
+5. Time Awareness 
+6. Possible Future Improvements
 
 ##### &nbsp;
 
@@ -32,41 +33,45 @@ The state space has 37 dimensions and contains the agent's velocity, along with 
 ##### &nbsp;
 
 ### 2. Training a vanilla DQN
-We first train our agent using a vanilla DQN with two fully connected layers of size 32. We note that all our methods in this project use a __Replay Buffer__ which provides the dataset and sampling for *experience replay*.  With some search in hyperparameters space (see `hyperparams.py`), we solve the environment in 225 episodes, or 125, if following the practice of ignoring the first 100 episodes.
+We first train our agent using a vanilla `DQNetwork` with two fully connected layers of size 32. We note that all our methods in this project use a __Replay Buffer__ which provides the dataset and sampling for *experience replay*.  With some search in hyperparameters space (see `hyperparams.py`), we solve the environment in 225 episodes, or 125, if following the practice of ignoring the first 100 episodes.
 
 
-ATTACH FILES WITH DESCRIPTION
+<img src="assets/DQNetwork_training_plot.PNG" width="50%" align="top-left" alt="" title="Best DQNetwork Graph" />
 
 
 ##### &nbsp;
 
 ### 3. Visualizing Results and Going Further: The Problem of Instability/Loops
-We train the agents and observe its behavior in many episodes. Here is an example of a normal run:
+We train the agents and observe its behavior in many episodes. [Here](https://www.youtube.com/watch?v=LMPpxnLnSVU) is an example of a normal run where the agent attains score 22!
 
+We find out that although the agent has technically solved the environment, there is instability in the results; a typical problem of DRL agents which results in their unreliability and is an obstacle to practical implementation, see [here](https://www.alexirpan.com/2018/02/14/rl-hard.html) for a long post on the problems of deep RL, esp. the section on **The Final Results Can be Unstable and Hard to Reproduce**. The significant drops (sometimes to *zero*) happens when the agent gets stuck in a sort of a loop of actions. [Here](https://www.youtube.com/watch?v=vLlwUaTGAEc) are many examples of different interesting behavior, with description below:  
+  1. Two *normal* loops with seen image being a yellow and a blue banana or both blue bananas; there is usually more fuzziness in the agent's movement if it encircled by blue bananas, or the yellow bananas are all far away.
+  2. A back and forth movement loop.
+  3. A loop right at the start causing zero score.
+  4. A situation where rewards seems to be far off but the agent manages to get to yellow bananas without getting stuck in a loop.
+  5. An *inefficient* movement of the agent where it scrubs the wall to move and ultimately heads for the yellow banana in its sight.
+  6. An (interesting) **long** loop!
+  
+We would like to count how many times we get stuck in such loops. It is not easy to *exactly* evaluate the number of loops. When the agent gets stuck in a loop, especially if it is with a *short* period which is mostly the case, it is seeing the exact same states many times (the seen part of the environment is very unlikely to change). Hence we could count if any state has happened for more than `counter_states` time in an episode. If this happens, we count that as a loop. In fact, this is the very mechanism used further below to detect the episodes with loops as we recorded 2 hours of agent's play. We see that in 200 episodes we have a lot of loops! The 9906 number below is calculated based on how many times the agent saw a state seen more than three times before (`counter_states=3`). Therefore when we see a huge uptick, it is because the agent got completely stuck in a loop until the end of the episode. The episodes at which there are close to 300 are those episodes where the loop starts right at the beginning and we can see the score is zero. We can definitely see a nice overall correspondence between the uptick and lowtick in the loop and score count, respectively. 
 
-But we find out that although the agent has technically solved the environment, there is instability in the results; a typical problem of DRL agents which results in their unreliability and is an obstacle to practical implementation, see [here](https://www.alexirpan.com/2018/02/14/rl-hard.html) for a long post on the problems of deep RL, esp. the section on **The Final Results Can be Unstable and Hard to Reproduce**. The significant drops (sometimes to *zero*) happens when the agent gets stuck in a sort of a loop of actions. Here are many examples of such behavior:
+<img src="assets/Loops_count_in_200_episodes_score_13.PNG" width="50%" align="top-left" alt="" title="loop count for DQN agent score 13" />
 
-ATTACH FILES WITH DESCRIPTION
+This could partially go to the deep problem of exploration/exploitation dilemma or simply to the problem of the lack of training, as 225 episodes may not have been enough yet to adequately update the action value across the environment space. So we first train further for a couple of hundred more episodes to reach average score 16.5. Watching that agent play, reveals far fewer loops in 200 episodes. Notice that some drops in the score could also be due to the sparsity of the yellow bananas in that particular episode.
 
+<img src="assets/Loops_count_in_200_episodes_score_above_16.PNG" width="50%" align="top-left" alt="" title="loop count for DQN agent score above 16" />
 
-We would like to count how many times we get stuck in such loops. It is not easy to *exactly* evaluate the number of loops. When the agent gets stuck in a loop, especially if it is with a *short* period which is mostly the case, it is seeing the exact same states many times (the seen part of the environment is very unlikely to change). Hence we could count if any state has happened for more than `counter_states` time in an episode. If this happens, we count that as a loop. In fact, this is the very mechanism used further below to detect the episodes with loops as we recorded 2 hours of agent's play. We see that in 200 episodes we have *this many* loops.
-
-
-This could partially go to the deep problem of exploration/exploitation dilemma or simply to the problem of the lack of training, as 225 episodes may not have been enough yet to adequately update the action value across the environment space. So we first train further for a couple of hundred more episodes to reach score 16. Watching that agent play, reveals far fewer loops in 200 episodes. Notice that some drops in the score could also be due to the sparsity of the yellow bananas in that particular episode.
-
-ATTACH FILES WITH DESCRIPTION
-
-Still we can see loops happening sometimes right at the beginning. In the examples below, we have tried to implement also a `loop_breaker` mechanism where we simply make the agent choose a random action with probability 0.99 if it has observed same state more than `counter_states=3`. It has varying degree of success. 
-
-
-ATTACH FILES WITH DESCRIPTION
+Still we can see loops happening sometimes but they are far more *complicated*. We see a zero score which should correspond to getting stuck in a loop right at the beginning but our loop count does not associate a high number to it. It may have been a loop with a long period. We tried to implement also a `loop_breaker` mechanism where we simply make the agent choose a random action with probability 0.99 if it has observed same state more than `counter_states=3`. It has varying degree of success as shown in examples [here](https://www.youtube.com/watch?v=4OpkVXkjPUA):
+  - The agent falls into a loop right at the start, but its loop is quite complicated as the `loop_break` mechanism only detects two separate counts of loop in this instance and fails to get the agent out of the loop.
+  - The agent gets out of the one recognized loop successfully and achieves a score of 7.
+  - The agent achieves a score lower than five with four counts of loops during the episode and `loop_breaker` fails in this instance as well.
+  
 
 
 ##### &nbsp;
 
 ### 4. Learnable Discount Factor
 
-In the following two sections, we will discuss strategies that are _conjectured_ to improve a DQN performance. As we are only analyzing one rather simple game here, and the episode length is rather small (300 seconds), the vanilla DQN does a similar job as the other more sophisticated implementations below. Therefore, consider this next two sections as ideas that could provide improvements in more complicated environments.
+In the following two sections, we will discuss strategies that are _conjectured_ to improve a DQN performance. As we are only analyzing one rather simple game here, and the episode length is rather small (300 seconds), the vanilla `DQNetwork` does a similar job as the other more sophisticated implementations below. Therefore, consider this next two sections as ideas that could provide improvements in more complicated environments.
 
 Perhaps the most fundamental parameter in the basic RL framework which regulates the behavior of the agent is the discount factor `gamma`; ranging from 0 to 1, it provides a certain *spectrum* of possible strategies. The question is, given the current problem, what is the best discount factor, for which the derived optimal policy would really be achieving the ultimate goal: Maximizing the **total** rewards in 300 timesteps. Imagine a course of action in which we collect 10 bananas in the first ten timesteps and another in which we collect 11 bananas in the last 11 timesteps.
 
@@ -74,7 +79,7 @@ As mentioned the **total** rewards (_undiscounted_) is our *criteria*. Hence, ob
 
 It should be noted that in our case where we only have 300 timesteps, we *can* implement this discount factor and we will get similar results. But as mentioned at the beginning of this section, these are ideas that are conjectured to generally improve a DQN performance for more complicated tasks.
 
-It is easy to see (as we also see it in real life examples) that coming up with a shortterm reward based strategy is much easier than a longterm reward based strategy, and this is related to the fact that the Q-value function to be approximated for shorterm lookahead strategies (small values of `gamma`) is much simpler than the other. Hence, the DQN can succeed to find shortterm strategies relatively fast but we have to strive to put `gamma` as closest to one as possible to get the best policy. DQN sometimes succeeds but mostly doesn't do better if `gamma` is *too* close to 1 or is set exactly at one; training may become harder as it is trying to really look *far* ahead and approximate a more complicated Q-function. That is why we see models trained with `gamma` around `0.99` even though the argument applied above still applies: Theoretically, the best strategy is the one coming from `gamma=1`.
+It is easy to see (as we also see it in real life examples) that coming up with a shortterm reward based strategy is much easier than a longterm reward based strategy, and this is related to the fact that the Q-value function to be approximated for shorterm lookahead strategies (small values of `gamma`) is much simpler than the other. Hence, the DQN can succeed to find shortterm strategies relatively fast but we have to strive to put `gamma` as closest to one as possible to get the best policy. DQN sometimes succeeds but mostly doesn't do better if `gamma` is *too* close to one or is set exactly at one; training may become harder as it is trying to really look *far* ahead and approximate a more complicated Q-function. That is why we see models trained with `gamma` around `0.99` even though the argument applied above still applies: Theoretically, the best strategy is the one coming from `gamma=1`.
 
 How can we do better on this issue? One idea is to use the fact that DQN can do well on smaller than 1 discount factor. It may in fact sometimes be better to follow the action provided by a _smaller_ `gamma` like `0.9` than the one provided with `0.99`. The reason is that the action provided by `0.99` may not be the actual best action as the DQN may not have accurately estimated its reward. But it has a higher probability to have accurately approximated the reward for the action from `gamma=0.9`, as it is coming from a more shortterm reward based optimal strategy and therefore easier to approximate. 
 
@@ -91,7 +96,7 @@ The weights of `DFQNetwork` have another nice interpretation: They give a *learn
 ATTACH THE ANALYSIS HERE
 
 
-The agent trains in 270 episodes (or 170) with the same hyperparameters as vanilla DQN, and can be trained in 480 episodes to score 16. Further, we can watch either any of the horizons playing or their linear combination. We play some of the low and high `gamma` values and their linear combination. Each of them seem to achieve a similar result. We can plot the `Gamma(t)` function at score 13 and 16.
+The agent trains in 243 episodes (or 143) with the same hyperparameters as vanilla `DQNetwork`, and can be trained in 480 episodes to score 16. Further, we can watch either any of the horizons playing or their linear combination. We play some of the low and high `gamma` values and their linear combination. Each of them seem to achieve a similar result. We can plot the `Gamma(t)` function at score 13 and 16.
 
 ATTACH THE PLOTS OF GAMMA HERE
 
@@ -116,13 +121,13 @@ ATTACH TRAINING PLOT WITH DESCRIPTION
 
 1. One can imagine an action dependent learnable discount factor. The same analysis applies and we only need to change the `DFQNetwork` to have a separate linear layer for each action. This broadens the scope of strategies the agent can achieve.
 2. What would happen if the `DFQNetwork` was deep? It is not clear what meaning of this would be. The analysis in above does not apply (as far as we can see), meaning that nonlinear combination of multihorizon is not associated to a more complicated discount function. Still, it is of theoretical interest to be investigated. Another interpretation of what has been done above and could be done with multilayer `DFQNetwork` is that we are doing a certain kind of *hierarchical RL* by combining multihorizons strategies in a nonlinear way.
-3. Vanilla `DQN` seems to be doing a good job, trains in fewer episodes but also trains faster (in real-time) than other models due to its simplicity. But it could be improved using a variety of improvements all implemented in Rainbow DQN such as:
+3. Vanilla `DQNetwork` seems to be doing a good job, trains in fewer episodes but also trains faster (in real-time) than other models due to its simplicity. But it could be improved using a variety of improvements all implemented in Rainbow DQN such as:
     - [Prioritized Replay](https://arxiv.org/abs/1511.05952): To learn from important experience that may get lost as the memory is finite, we add `|delta_t|` (the absolute value of TD error at timestep `t`) to the `SARS` tuple and order by `|delta_t|` the probability of their selection. To avoid zero division we need to add a decay term `eps` to all `|delta_t|`. We can also move along a spectrum of unifrom-prioritized sampling by introducing a hyperparameter `0 <= a <= 1` and taking the probability to come from `p_t**a=(|delta_t|+eps)**a`, i.e. `P(t)=p_t**a / sum_t p_t**a`. When `a=1`, this is the pure prioritized sampling and when `a=0` it is the usual uniform sampling. Finally, as our distribution is no longer iid, we need to change the learning rule and multiply the learning rate by `1/N * 1/P(t)` where `N` is the replay buffer size.
     - [Dueling DQN](http://proceedings.mlr.press/v48/wangf16.pdf): We know that `Q(s,a)=V(s)+A(s,a)` where `V` is the state value function and `A` is the advantage function. The *state* value function by definition do not differ across actions. Therefore the idea is to estimate them as they are easier to estimate and then try to approximate the difference across actions which is the advantage function. The implementation is best summarized in the following picture:   ATTACH PICTURE HERE  More details can be found in the paper. For example, we want to make sure that our estimation of `V,A` is such that `max_a Q(s,a) = V`. To ensure this *indentifiability* of `V`, it is better to use `A - max_a A` instead of just `A` in the last addition module above. An even better solution is to use `A- mean(A)` as it would force the advantage to only move as fast as the mean instead of compensating for maximum. When acting, we would only need to evaluate the max in the advantage stream as it is the only of the two streams dependent on action and we are confident enough that always `max_a Q(s,a) = V`. Further, it should be noted that in Dueling DQN, the Q-value is essentially updated for all actions as they share information in `V` and `mean(A)`, instead of just one action like in DQN. As the `action_size` grows, the outperformance of Dueling DQN also grows, as the advantage stream makse sure that noise cannot abruptly change the policy when scale of gap between `Q(s,a)`s for all `a`, is much smaller than the scale of `Q(s,a)` itself. 
     - [Double DQN](https://arxiv.org/abs/1509.06461): When it comes to picking the target, DQN picks the max of the target network Q-values. This could result in overestimation as we have not yet gathered enough information (esp. at the beginning of training). So instead, we could choose the best action according to our local DQN, and then evaluate the target DQN at that action. Hence we are using a different set of parameters (the local DQN) to select the action from the parameters used to evaluate it (the target DQN). This results in stability and avoids the explosion of Q-values. A small change in the code where we select `next_action_values` in `agent` can be performed to apply this algorithm.
 
 
-4. Using the above approaches, we could try to beat the record of vanilla `DQN` in solving the environment in as few episodes as possible, but also try to reach the highest possible score; we only went up to score 16 as the agents were beginning to show signs of destabilization.
+4. Using the above approaches, we could try to beat the record of vanilla `DQNetwork` in solving the environment in as few episodes as possible, but also try to reach the highest possible score; we only went up to score 16 as the agents were beginning to show signs of destabilization.
 
 
 
@@ -147,7 +152,3 @@ Also, the original Udacity repo for this project can be found [here](https://git
     (_For AWS_) If you'd like to train the agent on AWS (and have not [enabled a virtual screen](https://github.com/Unity-Technologies/ml-agents/blob/master/docs/Training-on-Amazon-Web-Service.md)), then please use [this link](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P1/Banana/Banana_Linux_NoVis.zip) to obtain the environment.
 
 2. Place the file in the DRLND GitHub repository, in the `p1_navigation/` folder, and unzip (or decompress) the file.
-
-### Instructions
-
-Follow the instructions in `Navigation.ipynb` to get started with training your own agent!  
