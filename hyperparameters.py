@@ -1,0 +1,10 @@
+BUFFER_SIZE = int(1e5)  # replay buffer size
+BATCH_SIZE = 500    # minibatch size
+GAMMA = 0.99     # discount factor
+TAU = 1e-3              # for soft update of target parameters
+LR = 1e-4            # learning rate 
+UPDATE_EVERY = 2  # how often (timesteps) to update the network
+EPS_START = 0.9 
+EPS_END = 0.01
+EPS_DECAY = 0.98
+seed=0   #initialization seed
