@@ -5,7 +5,7 @@ Project 1 Udacity's Deep RL nanodegree Report
 
 ## Report Contents
 
-1. State and Action Space.
+1. Goal, State and Action Space.
 2. Training a vanilla DQN.
 3. Visualizing Results and Going Further: The problem of Instability/Loops
 4. Learnable Discount Function
@@ -14,7 +14,12 @@ Project 1 Udacity's Deep RL nanodegree Report
 
 ##### &nbsp;
 
-## 1. State & Action Space
+## 1. Goal, State & Action Space
+
+In this project, we train a reinforcement learning (RL) agent that navigates an environment similar to [Unity's Banana Collector environment](https://github.com/Unity-Technologies/ml-agents/blob/master/docs/Learning-Environment-Examples.md#banana-collector). The environment has yellow and blue bananas scattered around a in rectangle-shaped environment. Occasionally some bananas drop from the air. The environment is episodic and runs for 300 timesteps (30 seconds).
+
+A reward of +1 is provided for collecting a yellow banana, and a reward of -1 is provided for collecting a blue banana. The goal is to collect as many yellow bananas as possible while avoiding blue bananas. The environment is solved when the agent achieves an average score of +13 over 100 consecutive episodes.
+
 The state space has 37 dimensions and contains the agent's velocity, along with ray-based perception of objects around the agent's forward direction (check the detailed code [here](https://github.com/Unity-Technologies/ml-agents/blob/e82450ab8304093871fd19b876a0f819d390e79d/UnitySDK/Assets/ML-Agents/Examples/SharedAssets/Scripts/RayPerception.cs#L11)). Four discrete actions are available:
 
 - `0` move forward
