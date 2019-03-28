@@ -3,9 +3,9 @@ Project 1 Udacity's Deep RL nanodegree Report
 
 ##### &nbsp;
 
-## Report Contents
+## Contents
 
-1. Goal, State and Action Space.
+1. Goal, State & Action Space.
 2. Training a vanilla DQN.
 3. Visualizing Results and Going Further: The problem of Instability/Loops
 4. Learnable Discount Function
