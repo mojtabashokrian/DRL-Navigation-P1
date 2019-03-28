@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-
+from collections import OrderedDict
 class DQNetwork(nn.Module):
     """Actor (Policy) Model."""
 
@@ -20,14 +20,14 @@ class DQNetwork(nn.Module):
         """
         super(DQNetwork, self).__init__()
         self.seed = torch.manual_seed(seed)
-        modules=[]
-        modules.append(nn.Linear(state_size,hidden_layer_size))
-        modules.append(nn.ReLU(inplace=True))
+        myOrderedDict=OrderedDict([])
+        myOrderedDict['fc1']=nn.Linear(state_size,hidden_layer_size)
+        myOrderedDict['relu1']=nn.ReLU(inplace=True)
         for i in range(hidden_layer-1):
-            modules.append(nn.Linear(hidden_layer_size,hidden_layer_size))
-            modules.append(nn.ReLU(inplace=True))
-        modules.append(nn.Linear(hidden_layer_size,action_size))
-        self.linear=nn.Sequential(*modules)
+            myOrderedDict[f'fc{i+2}']=nn.Linear(hidden_layer_size,hidden_layer_size)
+            myOrderedDict[f'relu{i+2}']=nn.ReLU(inplace=True)
+        myOrderedDict[f'fc{hidden_layer+1}']=nn.Linear(hidden_layer_size,action_size)
+        self.linear=nn.Sequential(myOrderedDict)
     
     def forward(self, state):
         """maps state -> action values."""
@@ -48,13 +48,13 @@ class MHQNetwork(nn.Module):
         """
         super(MHQNetwork,self).__init__()
         self.seed = torch.manual_seed(seed)
-        modules=[]
-        modules.append(nn.Linear(state_size,hidden_layer_size))
-        modules.append(nn.ReLU(inplace=True))
+        myOrderedDict=OrderedDict([])
+        myOrderedDict['fc1']=nn.Linear(state_size,hidden_layer_size)
+        myOrderedDict['relu1']=nn.ReLU(inplace=True)
         for i in range(hidden_layer-1):
-            modules.append(nn.Linear(hidden_layer_size,hidden_layer_size))
-            modules.append(nn.ReLU(inplace=True))
-        self.linear=nn.Sequential(*modules)
+            myOrderedDict[f'fc{i+2}']=nn.Linear(hidden_layer_size,hidden_layer_size)
+            myOrderedDict[f'relu{i+2}']=nn.ReLU(inplace=True)
+        self.linear=nn.Sequential(myOrderedDict)
         self.mh_size=mh_size
         self.mh=nn.ModuleList()
         for i in range(mh_size):
@@ -81,17 +81,17 @@ class DFQNetwork(nn.Module):
         self.seed = torch.manual_seed(seed)
         self.action_size=action_size
         self.mh_size=mh_size
-        modules=[]
+        myOrderedDict=OrderedDict([])
         if hidden_layer==0:
-            self.linear=nn.Sequential(nn.Linear(mh_size,1))
+            myOrderedDict['fc1']=nn.Linear(self.mh_size,1)
         else:
-            modules.append(nn.Linear(mh_size,hidden_layer_size))
-            modules.append(nn.ReLU(inplace=True))
+            myOrderedDict['fc1']=nn.Linear(self.mh_size,hidden_layer_size)
+            myOrderedDict['relu1']=nn.ReLU(inplace=True)
             for i in range(hidden_layer-1):
-                modules.append(nn.Linear(hidden_layer_size,hidden_layer_size))
-                modules.append(nn.ReLU(inplace=True))
-            modules.append(nn.Linear(hidden_layer_size,1))
-            self.linear=nn.Sequential(*modules)            
+                myOrderedDict[f'fc{i+2}']=nn.Linear(hidden_layer_size,hidden_layer_size)
+                myOrderedDict[f'relu{i+2}']=nn.ReLU(inplace=True)
+            myOrderedDict[f'fc{hidden_layer+1}']=nn.Linear(hidden_layer_size,1)
+        self.linear=nn.Sequential(myOrderedDict)            
     def forward(self, Qvalues):
         """maps Qvalues (gamma_i,batche_size,actions) of Q_gamma_i(s,a) for all a to Q(s,a)."""
         Qvalues=Qvalues.permute([1,0,2]) 
