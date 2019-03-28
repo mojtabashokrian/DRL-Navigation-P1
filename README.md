@@ -34,9 +34,8 @@ Read the `Report.md` for full implementation details.
 ---
 
 # Project Starter Code
-The project starter code can be found below, in case you want to run this project yourself.
 
-Also, the original Udacity repo for this project can be found [here](https://github.com/udacity/deep-reinforcement-learning/tree/master/p1_navigation).
+The original Udacity repo for this project can be found [here](https://github.com/udacity/deep-reinforcement-learning/tree/master/p1_navigation).
 
 
 ### Getting Started
