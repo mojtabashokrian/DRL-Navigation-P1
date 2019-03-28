@@ -108,7 +108,7 @@ plt.xlabel('Steps #')
 plt.show()
 ```
 
-Getting to implementation, our agent solves the environment in 241 episodes (or 141) with the same hyperparameters as vanilla `DQNetwork`, and can be trained in 482 episodes to score 16.
+Getting to implementation, our agent solves the environment in 243 episodes (or 143) with the same hyperparameters as vanilla `DQNetwork`, and can be trained in 483 episodes to score 16.
 
 <img src="assets/MHQDFQ_train_plot_to_16.PNG" width="50%" align="top-left" alt="" title="MHQDFQ graph" />
 
@@ -123,15 +123,13 @@ As for the `Gamma(t)` function at score 16, here is the plot:
 
 <img src="assets/Gamma(t)_score_16_MHQDFQ.PNG" width="50%" align="top-left" alt="" title="Discount Function on score 16" />
 
-We see quite an uptick in the first 4 seconds where `Gamma(t)` goes even higher than 1.2! This means the agent has become quite certain about the next 4 seconds rewards as the multi horizons have been able to provide the agent an accurate prediction of the total reward for the next 4 seconds. But ultimately the weighting decreases faster and moves asymptotically to almost 80% of the exponential weighting as shown below. This shows the agent has a lot of *mistrust* in the multihorizons predictions on whether it can get rewards on those long timescales.
-
-<img src="assets/Gamma(t)_vs_Exponential_score_16_MHQDFQ.PNG" width="50%" align="top-left" alt="" title="Gamma(t)/Exponential with gamma=0.99" />
+We see quite an uptick in the first 4 seconds where `Gamma(t)` goes even higher than 1.2! This means the agent has become quite certain about the next 4 seconds rewards as the multi horizons have been able to provide the agent an accurate prediction of the total reward for the next 4 seconds. But ultimately the weighting decreases faster and moves asymptotically to almost 80% of the exponential weighting. This shows the agent has a lot of *mistrust* in the multihorizons predictions on whether it can get rewards on those long timescales.
  
 ##### &nbsp;
 
 ### 5. Time Awareness 
 
-Although it may seem that our problem is an instance of completely observable environments, we have one crucial aspect of the environment missing in the `state` given by `env`: the remaining time of the episode. It is not hard to imagine how this could influence the optimal behavior. To solve this issue, we can add the time remaining to the state. The idea was proposed in [here](https://arxiv.org/abs/1712.00378). Combining this with the multihorizon could lead to a time aware agent which is trying to maximize the total reward, a combination which is needed as maximizing total reward *without an observation of the time* may not actually be optimal in an episodic task (esp. with a fixed time constraint). Using a `time_step` (normalized) counter, we can give this information to the agent. We solve the environment in 343 episodes.
+Although it may seem that our problem is an instance of completely observable environments, we have one crucial aspect of the environment missing in the `state` given by `env`: the remaining time of the episode. It is not hard to imagine how this could influence the optimal behavior. To solve this issue, we can add the time remaining to the state. The idea was proposed in [here](https://arxiv.org/abs/1712.00378). Combining this with the multihorizon could lead to a time aware agent which is trying to maximize the total reward, a combination which is needed as maximizing total reward *without an observation of the time* may not actually be optimal in an episodic task (esp. with a fixed time constraint). Using a `time_step` (normalized) counter, we can give this information to the agent. We solve the environment in 313 episodes.
 
 <img src="assets/MHQDFQ-TimeAware_training_plot.PNG" width="50%" align="top-left" alt="" title="Gamma(t)/Exponential with gamma=0.99" />
 
