@@ -7,4 +7,4 @@ UPDATE_EVERY = 2  # how often (timesteps) to update the network
 EPS_START = 0.9 
 EPS_END = 0.01
 EPS_DECAY = 0.98
-seed=0   #initialization seed
+SEED = 0   #initialization seed
