@@ -94,7 +94,7 @@ Hence, the idea is to apply the Multi-Horizon network detailed in [here](https:/
 
 <img src="assets/Hyperbolic_discount_function_description.PNG" width="70%" align="top-left" alt="" title="Discount Function implementation" />
 
-In our implementation (`DQN.py`), `MHQNetwork` computes the Q-function for multiple values of `gamma`, but instead of choosing a fixed (*hyperbolic*) weighting as done by the authors in that paper, we let the `DFQNetwork` *learn* the best weighting. The loss function for `DFQNetwork` is given assuming it is trying to find a linear combination which gives optimal strategy for `gamma=1` (which was our primary goal).
+In our implementation (`DQN.py`), `MHQNetwork` computes the Q-function for multiple values of `gamma`, but instead of choosing a fixed (*hyperbolic*) weighting as done by the authors in that paper, we let the `DFQNetwork` *learn* the best weighting. The loss function for `DFQNetwork` is given assuming it is trying to find a linear combination which gives optimal strategy for `gamma=1` (which was our primary goal). Notice `bias` should be set `False` in `DFQNetwork` so that we are truly taking a weighting of the multi horizons.
 
 The weights of `DFQNetwork` have another nice interpretation: They give a *learned* discount **function**, call it `Gamma(t)` (dependent on timestep `t`), which is not necessarily exponential. This can be thought of as a preferred discount function for the DQN with which it *can* be trained and get close to the theoretical optimal policy provided by `gamma=1`. The analysis behind this claim can be found in `DFQNetwork_and_Learned_Discount_Function.pdf`, which shows why `DFQNetwork` weights can be interpreted as the learned discount function and how `Gamma[t]` can be implemented via the following code:
 
@@ -108,7 +108,7 @@ plt.xlabel('Steps #')
 plt.show()
 ```
 
-Getting to implementation, our agent solves the environment in 243 episodes (or 143) with the same hyperparameters as vanilla `DQNetwork`, and can be trained in 483 episodes to score 16.
+Getting to implementation, our agent solves the environment in 297 episodes (or 197) with the same hyperparameters as vanilla `DQNetwork`, and can be trained in 494 episodes to score 16.
 
 <img src="assets/MHQDFQ_train_plot_to_16.PNG" width="50%" align="top-left" alt="" title="MHQDFQ graph" />
 
@@ -129,7 +129,7 @@ We see quite an uptick in the first 4 seconds where `Gamma(t)` goes even higher 
 
 ### 5. Time Awareness 
 
-Although it may seem that our problem is an instance of completely observable environments, we have one crucial aspect of the environment missing in the `state` given by `env`: the remaining time of the episode. It is not hard to imagine how this could influence the optimal behavior. To solve this issue, we can add the time remaining to the state. The idea was proposed in [here](https://arxiv.org/abs/1712.00378). Combining this with the multihorizon could lead to a time aware agent which is trying to maximize the total reward, a combination which is needed as maximizing total reward *without an observation of the time* may not actually be optimal in an episodic task (esp. with a fixed time constraint). Using a `time_step` (normalized) counter, we can give this information to the agent. We solve the environment in 313 episodes.
+Although it may seem that our problem is an instance of completely observable environments, we have one crucial aspect of the environment missing in the `state` given by `env`: the remaining time of the episode. It is not hard to imagine how this could influence the optimal behavior. To solve this issue, we can add the time remaining to the state. The idea was proposed in [here](https://arxiv.org/abs/1712.00378). Combining this with the multihorizon could lead to a time aware agent which is trying to maximize the total reward, a combination which is needed as maximizing total reward *without an observation of the time* may not actually be optimal in an episodic task (esp. with a fixed time constraint). Using a `time_step` (normalized) counter, we can give this information to the agent. We solve the environment using the new agent.
 
 <img src="assets/MHQDFQ-TimeAware_training_plot.PNG" width="50%" align="top-left" alt="" title="Gamma(t)/Exponential with gamma=0.99" />
 
