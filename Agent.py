@@ -12,7 +12,7 @@ class Agent():
     """Interacts with and learns from the environment."""
 
     def __init__(self, state_size, action_size, network = "mhq_dfq",
-                 mh_size=10, hidden_layer=2,hidden_layer_d=0, hidden_layer_size=32, time_aware=False,  seed=seed):
+                 mh_size=10, hidden_layer=2,hidden_layer_d=0, hidden_layer_size=32, time_aware=False,  seed=SEED):
         """Initialize an Agent object.
         
         Params

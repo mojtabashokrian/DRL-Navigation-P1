@@ -5,6 +5,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from collections import OrderedDict
+
 class DQNetwork(nn.Module):
     """Actor (Policy) Model."""
 
@@ -83,14 +84,14 @@ class DFQNetwork(nn.Module):
         self.mh_size=mh_size
         myOrderedDict=OrderedDict([])
         if hidden_layer==0:
-            myOrderedDict['fc1']=nn.Linear(self.mh_size,1)
+            myOrderedDict['fc1']=nn.Linear(self.mh_size,1,bias=False)
         else:
             myOrderedDict['fc1']=nn.Linear(self.mh_size,hidden_layer_size)
             myOrderedDict['relu1']=nn.ReLU(inplace=True)
             for i in range(hidden_layer-1):
                 myOrderedDict[f'fc{i+2}']=nn.Linear(hidden_layer_size,hidden_layer_size)
                 myOrderedDict[f'relu{i+2}']=nn.ReLU(inplace=True)
-            myOrderedDict[f'fc{hidden_layer+1}']=nn.Linear(hidden_layer_size,1)
+            myOrderedDict[f'fc{hidden_layer+1}']=nn.Linear(hidden_layer_size,1,bias=False)
         self.linear=nn.Sequential(myOrderedDict)            
     def forward(self, Qvalues):
         """maps Qvalues (gamma_i,batche_size,actions) of Q_gamma_i(s,a) for all a to Q(s,a)."""
