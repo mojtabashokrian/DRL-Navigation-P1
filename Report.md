@@ -14,7 +14,7 @@ Project 1 Udacity's Deep RL nanodegree Report
 
 ##### &nbsp;
 
-## 1. Goal, State & Action Space
+### 1. Goal, State & Action Space
 
 In this project, we train a reinforcement learning (RL) agent that navigates an environment similar to [Unity's Banana Collector environment](https://github.com/Unity-Technologies/ml-agents/blob/master/docs/Learning-Environment-Examples.md#banana-collector). The environment has yellow and blue bananas scattered around a in rectangle-shaped environment. Occasionally some bananas drop from the air. The environment is episodic and runs for 300 timesteps (30 seconds).
 
