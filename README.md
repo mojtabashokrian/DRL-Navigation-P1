@@ -33,6 +33,16 @@ Read the `Report.md` for full implementation details.
 
 ---
 
+# Instructions
+
+To run the agent locally, first you need to install unity ml-agents 0.4. You can find it [here](https://github.com/Unity-Technologies/ml-agents/tree/0.4.0b); Clone it and go to the `python` folder and run `python setup.py`.
+
+Now, after cloning our repository, activate the ml-agents environment by running `activate ml-agents`, go to the repository folder and run `pip install -r requirements.txt`.
+
+Here, we work with the environment which is in `Banana_Windows_x86_64` which needs to be put in the repository above. To download it for your operating system, use the links provided further below. Follow the instructions in `Train.ipynb` to train the agent.
+
+---
+
 # Project Starter Code
 
 The original Udacity repo for this project can be found [here](https://github.com/udacity/deep-reinforcement-learning/tree/master/p1_navigation).
@@ -51,6 +61,3 @@ The original Udacity repo for this project can be found [here](https://github.co
     (_For AWS_) If you'd like to train the agent on AWS (and have not [enabled a virtual screen](https://github.com/Unity-Technologies/ml-agents/blob/master/docs/Training-on-Amazon-Web-Service.md)), then please use [this link](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P1/Banana/Banana_Linux_NoVis.zip) to obtain the environment.
 
 2. Place the file in the DRLND GitHub repository, in the `p1_navigation/` folder, and unzip (or decompress) the file.
-
-### Instructions
-  Follow the instructions in `Train.ipynb` to train the agent.
